@@ -177,8 +177,8 @@
     </div>
 
     <script>
-        // Cambia esta URL por la de tu API en Google Cloud
-        const API_URL = 'http://localhost:5000';
+        // Usar la misma URL donde está desplegada la app (Cloud Run detecta automáticamente)
+        const API_URL = window.location.origin;
 
         function mostrarResultado(mensaje, tipo) {
             const resultado = document.getElementById('resultado');

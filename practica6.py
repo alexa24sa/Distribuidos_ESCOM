@@ -1,8 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)  # Habilitar CORS para permitir peticiones desde el frontend
+
+# Ruta para servir el frontend
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
 
 # Datos simulados del clima
 clima_data = {
