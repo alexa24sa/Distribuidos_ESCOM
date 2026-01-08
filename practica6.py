@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para permitir peticiones desde el frontend
 
 # Datos simulados del clima
 clima_data = {
@@ -43,4 +45,6 @@ def eliminar_clima():
         return jsonify({"error": "Ciudad no encontrada"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)

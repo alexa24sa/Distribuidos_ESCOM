@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta del Clima</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #resultado {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .clima-info {
+            margin-top: 10px;
+        }
+        
+        .clima-info p {
+            margin: 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .clima-info strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ Consulta del Clima</h1>
+        
+        <!-- Consultar Clima -->
+        <div class="form-section">
+            <h2>Consultar Clima</h2>
+            <div class="form-group">
+                <label for="ciudadConsulta">Ciudad:</label>
+                <input type="text" id="ciudadConsulta" placeholder="Ej: CDMX, Guadalajara, Monterrey">
+            </div>
+            <button onclick="consultarClima()">Consultar</button>
+        </div>
+        
+        <!-- Agregar Ciudad -->
+        <div class="form-section">
+            <h2>Agregar Nueva Ciudad</h2>
+            <div class="form-group">
+                <label for="ciudadNueva">Ciudad:</label>
+                <input type="text" id="ciudadNueva" placeholder="Nombre de la ciudad">
+            </div>
+            <div class="form-group">
+                <label for="temperatura">Temperatura:</label>
+                <input type="text" id="temperatura" placeholder="Ej: 25°C">
+            </div>
+            <div class="form-group">
+                <label for="humedad">Humedad:</label>
+                <input type="text" id="humedad" placeholder="Ej: 50%">
+            </div>
+            <button onclick="agregarClima()">Agregar Ciudad</button>
+        </div>
+        
+        <!-- Eliminar Ciudad -->
+        <div class="form-section">
+            <h2>Eliminar Ciudad</h2>
+            <div class="form-group">
+                <label for="ciudadEliminar">Ciudad:</label>
+                <input type="text" id="ciudadEliminar" placeholder="Nombre de la ciudad">
+            </div>
+            <button onclick="eliminarClima()">Eliminar Ciudad</button>
+        </div>
+        
+        <!-- Resultado -->
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        // Cambia esta URL por la de tu API en Google Cloud
+        const API_URL = 'http://localhost:5000';
+
+        function mostrarResultado(mensaje, tipo) {
+            const resultado = document.getElementById('resultado');
+            resultado.className = tipo;
+            resultado.innerHTML = mensaje;
+            resultado.style.display = 'block';
+            
+            setTimeout(() => {
+                resultado.style.display = 'none';
+            }, 5000);
+        }
+
+        async function consultarClima() {
+            const ciudad = document.getElementById('ciudadConsulta').value.trim();
+            
+            if (!ciudad) {
+                mostrarResultado('Por favor ingresa una ciudad', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/clima?ciudad=${encodeURIComponent(ciudad)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const mensaje = `
+                        <h3>📍 ${data.ciudad}</h3>
+                        <div class="clima-info">
+                            <p><strong>Temperatura:</strong> ${data.datos.temperatura}</p>
+                            <p><strong>Humedad:</strong> ${data.datos.humedad}</p>
+                        </div>
+                    `;
+                    mostrarResultado(mensaje, 'success');
+                } else {
+                    mostrarResultado(data.error || 'Error al consultar el clima', 'error');
+                }
+            } catch (error) {
+                mostrarResultado('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        async function agregarClima() {
+            const ciudad = document.getElementById('ciudadNueva').value.trim();
+            const temperatura = document.getElementById('temperatura').value.trim();
+            const humedad = document.getElementById('humedad').value.trim();
+            
+            if (!ciudad || !temperatura || !humedad) {
+                mostrarResultado('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/clima`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ciudad: ciudad,
+                        temperatura: temperatura,
+                        humedad: humedad
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    mostrarResultado(`✅ Ciudad "${ciudad}" agregada exitosamente`, 'success');
+                    document.getElementById('ciudadNueva').value = '';
+                    document.getElementById('temperatura').value = '';
+                    document.getElementById('humedad').value = '';
+                } else {
+                    mostrarResultado(data.error || 'Error al agregar la ciudad', 'error');
+                }
+            } catch (error) {
+                mostrarResultado('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        async function eliminarClima() {
+            const ciudad = document.getElementById('ciudadEliminar').value.trim();
+            
+            if (!ciudad) {
+                mostrarResultado('Por favor ingresa una ciudad', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/clima?ciudad=${encodeURIComponent(ciudad)}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    mostrarResultado(`✅ ${data.mensaje}`, 'success');
+                    document.getElementById('ciudadEliminar').value = '';
+                } else {
+                    mostrarResultado(data.error || 'Error al eliminar la ciudad', 'error');
+                }
+            } catch (error) {
+                mostrarResultado('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // Permitir enviar con Enter
+        document.getElementById('ciudadConsulta').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') consultarClima();
+        });
+        
+        document.getElementById('ciudadEliminar').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') eliminarClima();
+        });
+    </script>
+</body>
+</html>
